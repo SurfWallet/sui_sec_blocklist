@@ -10,6 +10,6 @@ domain-list.
 
 #### Example code
 
-- [scanCoin](example/lib/scan_coin_test.dart)
-- [scanNFT](example/lib/scan_nft_test.dart)
-- [scanPackage](example/lib/scan_package_test.dart)
+- [scanCoin](example/lib/scan_coin.dart)
+- [scanNFT](example/lib/scan_nft.dart)
+- [scanPackage](example/lib/scan_package.dart)
