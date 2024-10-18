@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:sui_sec_blocklist/src/storage/in_memory_storage.dart';
 
@@ -7,53 +6,73 @@ import 'types.dart';
 import 'utils.dart' as utils;
 import 'utils.dart';
 
+/// The sui security blocklist client. Guardians - Phishing Website Protection
 class SuiSecBlocklist {
+  /// * [storage] the blocklist cache storage. Default is [InMemoryStorage].
+  /// * [reportError] is called with the error and possibly stack trace.
+  /// * [debugLog] if set true, print fetch log.
   SuiSecBlocklist({
     BlocklistStorage? storage,
-    this.reportError,
-    this.debugLog = false,
-  }) : storage = storage ?? InMemoryStorage();
+    void Function(dynamic, [StackTrace?])? reportError,
+    bool debugLog = false,
+  })  : _debugLog = debugLog,
+        _reportError = reportError,
+        _storage = storage ?? InMemoryStorage();
 
-  final bool debugLog;
-  final BlocklistStorage storage;
-  final ErrorCallback? reportError;
+  final bool _debugLog;
+  final BlocklistStorage _storage;
+  final ErrorCallback? _reportError;
 
+  /// Prints an log message to the console.
+  /// * [message] log message.
   void logger(String message) {
-    if (debugLog) {
-      stdout.writeln(message);
+    if (_debugLog) {
+      print(message);
     }
   }
 
+  /// fetch domain whitelist and blacklist.
   Future<void> fetchDomainList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.domainBlocklist);
   }
 
+  /// scan domain, if return [Action.block], the [url] is in blocklist.
+  /// * [url] scan the domain.
   Future<Action> scanDomain(String url) {
     return _scan(url, BlocklistStorageKey.domainBlocklist);
   }
 
+  /// fetch package whitelist and blacklist.
   Future<void> fetchPackageList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.packageBlocklist);
   }
 
+  /// scan package address, if return [Action.block], the package [address] is in blocklist.
+  /// * [address] the package address.
   Future<Action> scanPackage(String address) {
     return _scan(address, BlocklistStorageKey.packageBlocklist);
   }
 
+  /// fetch object whitelist and blacklist.
   Future<void> fetchObjectList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.objectBlocklist);
   }
 
+  /// scan object type, if return [Action.block], the [object] is in blocklist.
+  /// * [object] the object type.
   Future<Action> scanObject(String object) {
     return _scan(object, BlocklistStorageKey.objectBlocklist);
   }
 
+  /// fetch coinType whitelist and blacklist.
   Future<void> fetchCoinList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.coinBlocklist);
   }
 
-  Future<Action> scanCoin(String coin) {
-    return _scan(coin, BlocklistStorageKey.coinBlocklist);
+  /// scan coin type, if return [Action.block], the [coinType] is in blocklist.
+  /// * [coinType] the coin type
+  Future<Action> scanCoin(String coinType) {
+    return _scan(coinType, BlocklistStorageKey.coinBlocklist);
   }
 
   Future<void> _fetchAllowBlocklist(BlocklistStorageKey key) async {
@@ -71,20 +90,23 @@ class SuiSecBlocklist {
 
     if (blocklist == null) {
       logger("_fetchAllowBlocklist($key) fail 1 $blocklist");
-      reportError?.call(Exception("Failed to fetch blocklist"));
+      _reportError?.call(Exception("Failed to fetch blocklist"));
       return;
     }
 
-    await storage.setItem(key, blocklist);
+    await _storage.setItem(key, blocklist);
     logger("_fetchAllowBlocklist($key) success $blocklist");
   }
 
+  /// Get user locally custom whitelist and blacklist.
   Future<AllowBlocklist?> getUserAllowDomainLocally() async {
     final allowBlocklist =
-        await storage.getItem(BlocklistStorageKey.userAllowlist);
+        await _storage.getItem(BlocklistStorageKey.userAllowlist);
     return allowBlocklist;
   }
 
+  /// User locally custom allow [domain].
+  /// * [domain] custom allow the [domain].
   Future<void> allowDomainLocally(String domain) async {
     var allowBlocklist = await getUserAllowDomainLocally();
     var allowlist = allowBlocklist?.allowlist ?? <String>[];
@@ -93,13 +115,13 @@ class SuiSecBlocklist {
       allowlist: [...allowlist, domain],
       blocklist: allowBlocklist?.blocklist ?? [],
     );
-    await storage.setItem(BlocklistStorageKey.userAllowlist, allowBlocklist);
+    await _storage.setItem(BlocklistStorageKey.userAllowlist, allowBlocklist);
     logger("allowDomainLocally success");
   }
 
   Future<Action> _scan(String value, BlocklistStorageKey key) async {
     logger("scan($key) start");
-    var storedBlocklist = await storage.getItem(key);
+    var storedBlocklist = await _storage.getItem(key);
 
     logger("scan($key) fetch 1 $storedBlocklist");
 
@@ -116,13 +138,13 @@ class SuiSecBlocklist {
         BlocklistStorageKey.userAllowlist => null,
       };
 
-      storedBlocklist = await storage.getItem(key);
+      storedBlocklist = await _storage.getItem(key);
       logger("scan($key) fetch 2 $storedBlocklist");
     }
 
     if (storedBlocklist == null) {
       logger("scan($key) error $storedBlocklist");
-      reportError?.call(Exception("Failed to fetch blocklist"));
+      _reportError?.call(Exception("Failed to fetch blocklist"));
       return Action.none;
     }
 

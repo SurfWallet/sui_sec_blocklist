@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-// import 'package:web/web.dart' as web;
 import 'dart:html' as html;
+
+// import 'package:web/web.dart' as web;
 
 import '../types.dart';
 
+/// Web localStorage cache.
 class LocalStorage implements BlocklistStorage {
   String _getName(BlocklistStorageKey key) {
     return '${BlocklistStorageKey.coinBlocklist.key}.json';
   }
 
+  /// Get the blocklist of [key] from Web localStorage.
   @override
   FutureOr<AllowBlocklist?> getItem(BlocklistStorageKey key) {
     final fileName = _getName(key);
@@ -24,6 +27,9 @@ class LocalStorage implements BlocklistStorage {
     }).catchError((e) => null);
   }
 
+  /// Storage the blocklist of [key] to Web localStorage.
+  /// [key] blocklist type
+  /// [data] blocklist data
   @override
   void setItem(BlocklistStorageKey key, AllowBlocklist? data) {
     html.window.localStorage.update(
@@ -34,8 +40,10 @@ class LocalStorage implements BlocklistStorage {
   }
 }
 
-//package:web
+// //package:web
+// /// Web localStorage cache.
 // class LocalStorage implements BlocklistStorage {
+//   /// Get the blocklist of [key] from Web localStorage.
 //   @override
 //   FutureOr<AllowBlocklist?> getItem(BlocklistStorageKey key) {
 //     return Future(() {
@@ -45,14 +53,17 @@ class LocalStorage implements BlocklistStorage {
 //     }).catchError((e) => null);
 //   }
 //
+//   /// Storage the blocklist of [key] to Web localStorage.
+//   /// [key] blocklist type
+//   /// [data] blocklist data
 //   @override
 //   void setItem(BlocklistStorageKey key, AllowBlocklist? data) {
-//     web.window.localStorage
-//         .setItem(key.key, data != null ? jsonEncode(data.toJson()) : '');
+//     web.window.localStorage.setItem(key.key, data != null ? jsonEncode(data.toJson()) : '');
 //   }
 // }
 
-extension IterableFirstWhrer<T> on Iterable<T> {
+extension FirstWhereExt<T> on Iterable<T> {
+  /// The first element satisfying [where], or `null` if there are none.
   T? firstWhereOrNull(bool Function(T element) where) {
     for (final e in this) {
       if (where(e)) {

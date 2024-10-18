@@ -1,0 +1,13 @@
+name: sui_sec_blocklist_example
+description: sui_sec_blocklist example project.
+homepage: none
+version: 1.0.0
+publish_to: none
+environment:
+  sdk: '>=3.3.4 <4.0.0'
+
+dependencies:
+  http: ^1.2.2
+  sui_sec_blocklist:
+    path: ..
+

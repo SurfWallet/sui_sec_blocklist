@@ -1,20 +1,25 @@
-// ignore_for_file: constant_identifier_names
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 import 'types.dart';
 
-const DEFAULT_BLOCKLIST_URL =
+/// default domain blocklist json url
+const _kDefaultBlocklistUrl =
     "https://raw.githubusercontent.com/suiet/guardians/main/src/domain-list.json";
-const DEFAULT_COIN_URL =
+
+/// default coinType blocklist json url
+const _kDefaultCoinUrl =
     "https://raw.githubusercontent.com/suiet/guardians/main/src/coin-list.json";
-const DEFAULT_PACKAGE_URL =
+
+/// default package blocklist json url
+const _kDefaultPackageUrl =
     "https://raw.githubusercontent.com/suiet/guardians/main/src/package-list.json";
-const DEFAULT_OBJECT_URL =
+
+/// default object type blocklist json url
+const _kDefaultObjectUrl =
     "https://raw.githubusercontent.com/suiet/guardians/main/src/object-list.json";
 
 const _kDomainMap = {
@@ -42,11 +47,11 @@ Future<AllowBlocklist?> _fetchAllowBlocklist(
 }) {
   return http.get(
     Uri.parse(url),
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    headers: {'content-type': 'application/json'},
   ).then<AllowBlocklist?>((response) {
     if (response.notOk) {
-      reportError?.call(HttpException(
-          response.reasonPhrase ?? response.statusCode.toString()));
+      reportError?.call(
+          Exception(response.reasonPhrase ?? response.statusCode.toString()));
       return null;
     }
     final map = jsonDecode(response.body) as Map;
@@ -57,12 +62,14 @@ Future<AllowBlocklist?> _fetchAllowBlocklist(
   });
 }
 
+/// Fetch domain whitelist and blacklist.
 Future<DomainBlocklist?> fetchDomainBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(DEFAULT_BLOCKLIST_URL, reportError: reportError);
+  return _fetchAllowBlocklist(_kDefaultBlocklistUrl, reportError: reportError);
 }
 
+/// Scan the [url] in [blocklist].
 Action scanDomain(List<String> blocklist, String url) {
   final domain = Uri.parse(url).host.toLowerCase();
   final domainParts = domain.split(".");
@@ -84,6 +91,7 @@ Action scanDomain(List<String> blocklist, String url) {
   return Action.none;
 }
 
+/// Retry [action] [times] if [action] throw error.
 FutureOr<T> withRetry<T>(FutureOr<T> Function() action, [int times = 3]) async {
   try {
     return await action();
@@ -95,40 +103,45 @@ FutureOr<T> withRetry<T>(FutureOr<T> Function() action, [int times = 3]) async {
   }
 }
 
+/// Fetch package whitelist and blacklist.
 Future<PackageBlocklist?> fetchPackageBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(DEFAULT_PACKAGE_URL, reportError: reportError);
+  return _fetchAllowBlocklist(_kDefaultPackageUrl, reportError: reportError);
 }
 
+/// Scan the package [address] in [packageList].
 Action scanPackage(List<String> packageList, String address) {
   return packageList.contains(address) ? Action.block : Action.none;
 }
 
+/// Fetch object whitelist and blacklist.
 Future<ObjectBlocklist?> fetchObjectBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(DEFAULT_OBJECT_URL, reportError: reportError);
+  return _fetchAllowBlocklist(_kDefaultObjectUrl, reportError: reportError);
 }
 
+/// Scan the [object] in [objectList].
 Action scanObject(List<String> objectList, String object) {
   return objectList.any((e) {
     return e.contains(RegExp(object, caseSensitive: false)) ||
         object.contains(RegExp(e, caseSensitive: false));
-    ;
   })
       ? Action.block
       : Action.none;
 }
 
+/// Fetch coin whitelist and blacklist.
 Future<CoinBlocklist?> fetchCoinBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(DEFAULT_COIN_URL, reportError: reportError);
+  return _fetchAllowBlocklist(_kDefaultCoinUrl, reportError: reportError);
 }
 
-Action scanCoin(List<String> coinList, String coin) {
-  return coinList.contains(coin) ? Action.block : Action.none;
+/// Scan the [coinType] in [coinList].
+Action scanCoin(List<String> coinList, String coinType) {
+  return coinList.contains(coinType) ? Action.block : Action.none;
 }
 
 extension on Response {

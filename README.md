@@ -1,5 +1,7 @@
 # SuiSecBlocklists
 
+[![pub package](https://img.shields.io/pub/v/sui_sec_blocklist.svg)](https://pub.dev/packages/sui_sec_blocklist)
+
 Dart library implementation [SuiSecBlockList](https://github.com/SuiSec/SuiSecBlockList)
 
 This is a Dart library that makes it easy to access
@@ -8,6 +10,6 @@ domain-list.
 
 #### Example code
 
-- [scanCoin](./test/scan_coin_test.dart)
-- [scanNFT](./test/scan_nft_test.dart)
-- [scanPackage](./test/scan_package_test.dart)
+- [scanCoin](example/lib/scan_coin_test.dart)
+- [scanNFT](example/lib/scan_nft_test.dart)
+- [scanPackage](example/lib/scan_package_test.dart)
