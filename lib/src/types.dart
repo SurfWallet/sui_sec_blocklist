@@ -35,9 +35,16 @@ class AllowBlocklist {
       };
 }
 
+/// Domain Whitelist and Blacklist.
 typedef DomainBlocklist = AllowBlocklist;
+
+/// Package Whitelist and Blacklist.
 typedef PackageBlocklist = AllowBlocklist;
+
+/// Object Whitelist and Blacklist.
 typedef ObjectBlocklist = AllowBlocklist;
+
+/// CoinType Whitelist and Blacklist.
 typedef CoinBlocklist = AllowBlocklist;
 
 /// Error for callbacks that are to report a [Error] or [Exception] and [StackTrace]

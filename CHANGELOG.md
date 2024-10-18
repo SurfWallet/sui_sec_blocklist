@@ -1,3 +1,8 @@
+## 0.1.2
+
+* Improve dart analysis scores.
+* Add topics to sui.
+
 ## 0.1.1
 
 * Add documentation.
