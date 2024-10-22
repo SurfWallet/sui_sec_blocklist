@@ -3,7 +3,7 @@ import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
 import 'network.dart';
 import 'sui_client.dart';
 
-Future<void> main() async {
+Future<void> scanNFT() async {
   const address =
       "0xdbc960ad75905c118c664329af8ddc6624452075c360de1d7e7a9a948d1732ef";
   const network = Network.mainnet;

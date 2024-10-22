@@ -1,3 +1,7 @@
+## 0.1.4
+
+* Fix io LocalStorage
+
 ## 0.1.3
 
 * Add MemoryAndLocalStorage

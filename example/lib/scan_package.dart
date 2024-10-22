@@ -2,7 +2,7 @@ import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
 
 import 'network.dart';
 
-Future<void> main() async {
+Future<void> scanPackage() async {
   const network = Network.mainnet;
   final suiScan = SuiScan(network: network);
   final blocklist = SuiSecBlocklist();

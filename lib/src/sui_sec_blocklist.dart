@@ -93,7 +93,6 @@ class SuiSecBlocklist {
       _reportError?.call(Exception("Failed to fetch blocklist"));
       return;
     }
-
     await _storage.setItem(key, blocklist);
     logger("_fetchAllowBlocklist($key) success $blocklist");
   }

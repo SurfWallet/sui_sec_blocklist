@@ -1,11 +1,37 @@
-import 'scan_coin.dart' as scan_coin;
-import 'scan_nft.dart' as scan_nft;
-import 'scan_package.dart' as scan_package;
+import 'package:flutter/material.dart' hide Action;
 
-Future<void> main() async {
-  await Future.wait([
-    scan_coin.main(),
-    scan_nft.main(),
-    scan_package.main(),
-  ]);
+import 'scan_coin.dart';
+import 'scan_nft.dart';
+import 'scan_package.dart';
+
+void main() {
+  runApp(MaterialApp(home: _HomePage()));
+}
+
+class _HomePage extends StatefulWidget {
+  const _HomePage();
+
+  @override
+  State<_HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<_HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    scan();
+  }
+
+  void scan() async {
+    await Future.wait([
+      scanCoin(),
+      scanNFT(),
+      scanPackage(),
+    ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
 }
