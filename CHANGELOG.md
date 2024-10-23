@@ -1,10 +1,14 @@
+## 0.1.5
+
+* Optimize AllowBlocklist in Isolate.
+
 ## 0.1.4
 
-* Fix io LocalStorage
+* Fix io LocalStorage.
 
 ## 0.1.3
 
-* Add MemoryAndLocalStorage
+* Add MemoryAndLocalStorage.
 
 ## 0.1.2
 

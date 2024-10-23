@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -48,14 +49,19 @@ Future<AllowBlocklist?> _fetchAllowBlocklist(
   return http.get(
     Uri.parse(url),
     headers: {'content-type': 'application/json'},
-  ).then<AllowBlocklist?>((response) {
+  ).then<AllowBlocklist?>((response) async {
     if (response.notOk) {
       reportError?.call(
           Exception(response.reasonPhrase ?? response.statusCode.toString()));
       return null;
     }
-    final map = jsonDecode(response.body) as Map;
-    return AllowBlocklist.fromJson(map);
+    final allowBlocklist = await Isolate.run(() {
+      final map = const Utf8Decoder(allowMalformed: true)
+          .fuse(const JsonDecoder())
+          .convert(response.bodyBytes) as Map;
+      return AllowBlocklist.fromJson(map);
+    });
+    return allowBlocklist;
   }).catchError((e, s) {
     reportError?.call(e, s);
     return null;
