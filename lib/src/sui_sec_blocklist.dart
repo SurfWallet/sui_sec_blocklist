@@ -38,8 +38,12 @@ class SuiSecBlocklist {
 
   /// scan domain, if return [Action.block], the [url] is in blocklist.
   /// * [url] scan the domain.
-  Future<Action> scanDomain(String url) {
-    return _scan(url, BlocklistStorageKey.domainBlocklist);
+  Future<Action> scanDomain(String url, {bool autoFetch = true}) {
+    return _scan(
+      url,
+      BlocklistStorageKey.domainBlocklist,
+      autoFetch: autoFetch,
+    );
   }
 
   /// fetch package whitelist and blacklist.
@@ -49,8 +53,12 @@ class SuiSecBlocklist {
 
   /// scan package address, if return [Action.block], the package [address] is in blocklist.
   /// * [address] the package address.
-  Future<Action> scanPackage(String address) {
-    return _scan(address, BlocklistStorageKey.packageBlocklist);
+  Future<Action> scanPackage(String address, {bool autoFetch = true}) {
+    return _scan(
+      address,
+      BlocklistStorageKey.packageBlocklist,
+      autoFetch: autoFetch,
+    );
   }
 
   /// fetch object whitelist and blacklist.
@@ -60,8 +68,12 @@ class SuiSecBlocklist {
 
   /// scan object type, if return [Action.block], the [object] is in blocklist.
   /// * [object] the object type.
-  Future<Action> scanObject(String object) {
-    return _scan(object, BlocklistStorageKey.objectBlocklist);
+  Future<Action> scanObject(String object, {bool autoFetch = true}) {
+    return _scan(
+      object,
+      BlocklistStorageKey.objectBlocklist,
+      autoFetch: autoFetch,
+    );
   }
 
   /// fetch coinType whitelist and blacklist.
@@ -71,8 +83,12 @@ class SuiSecBlocklist {
 
   /// scan coin type, if return [Action.block], the [coinType] is in blocklist.
   /// * [coinType] the coin type
-  Future<Action> scanCoin(String coinType) {
-    return _scan(coinType, BlocklistStorageKey.coinBlocklist);
+  Future<Action> scanCoin(String coinType, {bool autoFetch = true}) {
+    return _scan(
+      coinType,
+      BlocklistStorageKey.coinBlocklist,
+      autoFetch: autoFetch,
+    );
   }
 
   Future<void> _fetchAllowBlocklist(BlocklistStorageKey key) async {
@@ -118,13 +134,17 @@ class SuiSecBlocklist {
     logger("allowDomainLocally success");
   }
 
-  Future<Action> _scan(String value, BlocklistStorageKey key) async {
+  Future<Action> _scan(
+    String value,
+    BlocklistStorageKey key, {
+    bool autoFetch = true,
+  }) async {
     logger("scan($key) start");
     var storedBlocklist = await _storage.getItem(key);
 
     logger("scan($key) fetch 1 $storedBlocklist");
 
-    if (storedBlocklist == null) {
+    if (storedBlocklist == null && autoFetch) {
       final _ = switch (key) {
         BlocklistStorageKey.domainBlocklist =>
           await withRetry(() => fetchDomainList(), 3),
@@ -144,6 +164,15 @@ class SuiSecBlocklist {
     if (storedBlocklist == null) {
       logger("scan($key) error $storedBlocklist");
       _reportError?.call(Exception("Failed to fetch blocklist"));
+      if (!autoFetch && key == BlocklistStorageKey.domainBlocklist) {
+        final userLocally = await getUserAllowDomainLocally();
+        final blocklist = userLocally?.blocklist ?? [];
+        final hostname = Uri.tryParse(value)?.host;
+        if (blocklist.contains(hostname)) {
+          return Action.block;
+        }
+      }
+
       return Action.none;
     }
 
@@ -159,10 +188,10 @@ class SuiSecBlocklist {
       BlocklistStorageKey.userAllowlist => Action.none,
     };
 
-    if (action == Action.block) {
+    if (action == Action.block && key == BlocklistStorageKey.domainBlocklist) {
       logger("scan($key) BLOCK");
-      final allowlist =
-          await getUserAllowDomainLocally().then((v) => v?.allowlist ?? []);
+      final userLocally = await getUserAllowDomainLocally();
+      final allowlist = userLocally?.allowlist ?? [];
       final hostname = Uri.tryParse(value)?.host;
       if (allowlist.contains(hostname)) {
         logger("scan($key) allowlist $allowlist $hostname");

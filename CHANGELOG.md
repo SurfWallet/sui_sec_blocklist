@@ -1,3 +1,7 @@
+## 0.1.6
+
+* Add Scan Option: autoFetch (default is true).
+
 ## 0.1.5
 
 * Optimize decode response to AllowBlocklist in Isolate.
