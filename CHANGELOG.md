@@ -1,6 +1,6 @@
 ## 0.1.5
 
-* Optimize AllowBlocklist in Isolate.
+* Optimize decode response to AllowBlocklist in Isolate.
 
 ## 0.1.4
 
