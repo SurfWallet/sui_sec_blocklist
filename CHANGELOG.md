@@ -1,3 +1,7 @@
+## 0.1.7+1
+
+* Fix LocalStorage.
+
 ## 0.1.7
 
 * Because network access to github may not always be smooth. Add fetch AllowBlocklist via

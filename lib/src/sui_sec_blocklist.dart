@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:sui_sec_blocklist/src/storage/in_memory_storage.dart';
 
@@ -176,17 +177,20 @@ class SuiSecBlocklist {
       return Action.none;
     }
 
-    final action = switch (key) {
-      BlocklistStorageKey.domainBlocklist =>
-        utils.scanDomain(storedBlocklist.blocklist, value),
-      BlocklistStorageKey.coinBlocklist =>
-        utils.scanCoin(storedBlocklist.blocklist, value),
-      BlocklistStorageKey.packageBlocklist =>
-        utils.scanPackage(storedBlocklist.blocklist, value),
-      BlocklistStorageKey.objectBlocklist =>
-        utils.scanObject(storedBlocklist.blocklist, value),
-      BlocklistStorageKey.userAllowlist => Action.none,
-    };
+    //Because blocklist data is too much. Fix Flutter Jank UI.
+    final blocklist = storedBlocklist.blocklist;
+    final action = await Isolate.run(() {
+      return switch (key) {
+        BlocklistStorageKey.domainBlocklist =>
+          utils.scanDomain(blocklist, value),
+        BlocklistStorageKey.coinBlocklist => utils.scanCoin(blocklist, value),
+        BlocklistStorageKey.packageBlocklist =>
+          utils.scanPackage(blocklist, value),
+        BlocklistStorageKey.objectBlocklist =>
+          utils.scanObject(blocklist, value),
+        BlocklistStorageKey.userAllowlist => Action.none,
+      };
+    });
 
     if (action == Action.block && key == BlocklistStorageKey.domainBlocklist) {
       logger("scan($key) BLOCK");

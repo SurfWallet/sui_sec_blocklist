@@ -9,7 +9,7 @@ import '../types.dart';
 /// Web localStorage cache.
 class LocalStorage implements BlocklistStorage {
   String _getName(BlocklistStorageKey key) {
-    return BlocklistStorageKey.coinBlocklist.key;
+    return key.key;
   }
 
   /// Get the blocklist of [key] from Web localStorage.

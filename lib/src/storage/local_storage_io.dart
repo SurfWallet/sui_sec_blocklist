@@ -12,8 +12,7 @@ import '../types.dart';
 class LocalStorage implements BlocklistStorage {
   Future<File> _getFile(BlocklistStorageKey key) async {
     final dir = await getApplicationDocumentsDirectory();
-    final filePath =
-        context.join(dir.path, BlocklistStorageKey.coinBlocklist.key);
+    final filePath = context.join(dir.path, key.key);
     return File(filePath);
   }
 
