@@ -1,3 +1,10 @@
+## 0.1.7
+
+* Because network access to github may not always be smooth. Add fetch AllowBlocklist via
+  the https://guardians.suiet.app and Github (
+  e.g. https://guardians.suiet.app/coin-list.json
+  and https://raw.githubusercontent.com/suiet/guardians/main/src/coin-list.json)
+
 ## 0.1.6
 
 * Add Scan Option: autoFetch (default is true).

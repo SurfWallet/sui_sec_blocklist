@@ -8,20 +8,28 @@ import 'package:http/http.dart';
 import 'types.dart';
 
 /// default domain blocklist json url
-const _kDefaultBlocklistUrl =
-    "https://raw.githubusercontent.com/suiet/guardians/main/src/domain-list.json";
+const _kDefaultBlocklistUrl = [
+  "https://guardians.suiet.app/domain-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/src/domain-list.json",
+];
 
 /// default coinType blocklist json url
-const _kDefaultCoinUrl =
-    "https://raw.githubusercontent.com/suiet/guardians/main/src/coin-list.json";
+const _kDefaultCoinUrl = [
+  "https://guardians.suiet.app/coin-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/src/coin-list.json",
+];
 
 /// default package blocklist json url
-const _kDefaultPackageUrl =
-    "https://raw.githubusercontent.com/suiet/guardians/main/src/package-list.json";
+const _kDefaultPackageUrl = [
+  "https://guardians.suiet.app/package-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/src/package-list.json",
+];
 
 /// default object type blocklist json url
-const _kDefaultObjectUrl =
-    "https://raw.githubusercontent.com/suiet/guardians/main/src/object-list.json";
+const _kDefaultObjectUrl = [
+  "https://guardians.suiet.app/object-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/src/object-list.json",
+];
 
 const _kDomainMap = {
   "cetus": "cetus.zone",
@@ -41,6 +49,20 @@ const _kDomainMap = {
   "alphafi": "alphafi.xyz",
   "deepbook": "deepbook.tech",
 };
+
+Future<CoinBlocklist?> _fetchAnyAllowBlocklist(
+  Iterable urls, {
+  ErrorCallback? reportError,
+}) async {
+  for (final url in urls) {
+    final allowBlocklist =
+        await _fetchAllowBlocklist(url, reportError: reportError);
+    if (allowBlocklist != null) {
+      return allowBlocklist;
+    }
+  }
+  return null;
+}
 
 Future<AllowBlocklist?> _fetchAllowBlocklist(
   String url, {
@@ -72,7 +94,8 @@ Future<AllowBlocklist?> _fetchAllowBlocklist(
 Future<DomainBlocklist?> fetchDomainBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(_kDefaultBlocklistUrl, reportError: reportError);
+  return _fetchAnyAllowBlocklist(_kDefaultBlocklistUrl,
+      reportError: reportError);
 }
 
 /// Scan the [url] in [blocklist].
@@ -113,7 +136,7 @@ FutureOr<T> withRetry<T>(FutureOr<T> Function() action, [int times = 3]) async {
 Future<PackageBlocklist?> fetchPackageBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(_kDefaultPackageUrl, reportError: reportError);
+  return _fetchAnyAllowBlocklist(_kDefaultPackageUrl, reportError: reportError);
 }
 
 /// Scan the package [address] in [packageList].
@@ -125,7 +148,7 @@ Action scanPackage(List<String> packageList, String address) {
 Future<ObjectBlocklist?> fetchObjectBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(_kDefaultObjectUrl, reportError: reportError);
+  return _fetchAnyAllowBlocklist(_kDefaultObjectUrl, reportError: reportError);
 }
 
 /// Scan the [object] in [objectList].
@@ -142,7 +165,7 @@ Action scanObject(List<String> objectList, String object) {
 Future<CoinBlocklist?> fetchCoinBlocklist({
   ErrorCallback? reportError,
 }) {
-  return _fetchAllowBlocklist(_kDefaultCoinUrl, reportError: reportError);
+  return _fetchAnyAllowBlocklist(_kDefaultCoinUrl, reportError: reportError);
 }
 
 /// Scan the [coinType] in [coinList].

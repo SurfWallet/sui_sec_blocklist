@@ -2,7 +2,7 @@ name: sui_sec_blocklist
 description: Fetch and execute lookups on Suiet Guardians blocklists. Protect your wallet from phishing.
 homepage: https://github.com/SurfWallet/sui_sec_blocklist
 issue_tracker: https://github.com/SurfWallet/sui_sec_blocklist/issues
-version: 0.1.6
+version: 0.1.7
 
 environment:
   sdk: '>=3.3.4 <4.0.0'
