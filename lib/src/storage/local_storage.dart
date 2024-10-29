@@ -34,6 +34,6 @@ class MemoryAndLocalStorage extends LocalStorage {
   @override
   Future<void> setItem(BlocklistStorageKey key, AllowBlocklist? data) async {
     memoryStorage.setItem(key, data);
-    await super.setItem(key, data);
+    await Future(() => super.setItem(key, data));
   }
 }

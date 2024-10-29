@@ -55,7 +55,7 @@ enum BlocklistStorageKey {
   domainBlocklist("DOMAIN_LIST"),
   userAllowlist("USER_ALLOWLIST"),
   packageBlocklist("PACKAGE_LIST"),
-  objectBlocklist("OBJECT_LIST:"),
+  objectBlocklist("OBJECT_LIST"),
   coinBlocklist("COIN_LIST"),
   ;
 

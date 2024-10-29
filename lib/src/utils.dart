@@ -50,7 +50,7 @@ const _kDomainMap = {
   "deepbook": "deepbook.tech",
 };
 
-Future<CoinBlocklist?> _fetchAnyAllowBlocklist(
+Future<AllowBlocklist?> _fetchAnyAllowBlocklist(
   Iterable urls, {
   ErrorCallback? reportError,
 }) async {
@@ -100,7 +100,10 @@ Future<DomainBlocklist?> fetchDomainBlocklist({
 
 /// Scan the [url] in [blocklist].
 Action scanDomain(List<String> blocklist, String url) {
-  final domain = Uri.parse(url).host.toLowerCase();
+  url = url.startsWith(RegExp('http', caseSensitive: false))
+      ? url
+      : 'https://$url';
+  final domain = Uri.tryParse(url)?.host.toLowerCase() ?? '';
   final domainParts = domain.split(".");
 
   for (var i = 0; i < domainParts.length - 1; i++) {
@@ -112,7 +115,8 @@ Action scanDomain(List<String> blocklist, String url) {
 
   for (final key in _kDomainMap.keys) {
     if (domain.contains(key)) {
-      if (domain != _kDomainMap[key]) {
+      // if (domain != _kDomainMap[key]) {
+      if (!domain.endsWith(_kDomainMap[key]!.toLowerCase())) {
         return Action.block;
       }
     }

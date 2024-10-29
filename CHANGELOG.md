@@ -1,3 +1,7 @@
+## 0.1.8
+
+* Fix Scan Domain.
+
 ## 0.1.7+1
 
 * Fix LocalStorage.

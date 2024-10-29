@@ -3,36 +3,38 @@ import 'package:flutter/material.dart' hide Action;
 import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import 'network.dart';
+Stream<Widget> scanDomain() async* {
+  const domains = {
+    "https://sui.io",
+    "sui.io",
+    "https://cetus.zone",
+    "https://app.cetus.zone",
+    "https://aftermath.finance/trade",
+    "https://deepbook.tech",
+    "https://defi-launchpad.com", //block
+    "https://500-airdrop.top", //block
+  };
+  final blocklist = SuiSecBlocklist();
 
-Stream<Widget> scanPackage() async* {
-  const network = Network.mainnet;
-  final suiScan = SuiScan(network: network);
-  const packages = [
-    '0xd89d1288e1d0a69cc7e5a30625c238e2310e4c23221557b819174f8c14b31ef8',
-    "0x154774ad8a1038ad492534f9d2c4457e3efdf43083a789bac7fb6c6976777977",
-    "0x40d77dc33c27eeb6d80676c590b392051abd19086b2b37910b298a97538e0950",
-  ];
   var spans = <TextSpan>[
     TextSpan(
-      text: 'scanPackage:\n',
+      text: 'scanDomain:\n',
       style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
     ),
   ];
-  yield Text.rich(TextSpan(children: [...spans]));
-  final blocklist = SuiSecBlocklist();
-
-  for (final p in packages) {
-    final action = await blocklist.scanPackage(p);
+  yield Text.rich(TextSpan(children: spans));
+  for (final d in domains) {
+    final action = await blocklist.scanDomain(d);
     spans = [
       ...spans,
       TextSpan(
-        text: "${action == Action.block ? '' : 'NOT-'}BLOCK package ",
+        text: "${action == Action.block ? '' : 'NOT-'}BLOCK domain ",
         children: [
           TextSpan(
-            text: p,
+            text: d,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => launchUrlString(suiScan.getObjectIdUrl(p)),
+              ..onTap = () => launchUrlString(
+                  d.startsWith(RegExp('http')) ? d : 'https://$d'),
             style: TextStyle(decoration: TextDecoration.underline),
           ),
           TextSpan(text: '\n' * 2),

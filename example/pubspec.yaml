@@ -12,6 +12,7 @@ dependencies:
   http: ^1.2.2
   sui_sec_blocklist:
     path: ..
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

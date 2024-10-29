@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart' hide Action;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'scan_coin.dart';
+import 'scan_domain.dart';
 import 'scan_nft.dart';
 import 'scan_package.dart';
 
@@ -8,30 +10,58 @@ void main() {
   runApp(MaterialApp(home: _HomePage()));
 }
 
-class _HomePage extends StatefulWidget {
-  const _HomePage();
-
+class _HomePage extends StatelessWidget {
   @override
-  State<_HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Scam Demo')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _ScanResultWidget(stream: scanCoin()),
+                _ScanResultWidget(stream: scanPackage()),
+                _ScanResultWidget(stream: scanDomain()),
+                _ScanResultWidget(stream: scanNFT()),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _HomePageState extends State<_HomePage> {
-  @override
-  void initState() {
-    super.initState();
-    scan();
-  }
+class _ScanResultWidget extends StatelessWidget {
+  const _ScanResultWidget({required this.stream});
 
-  void scan() async {
-    await Future.wait([
-      scanCoin(),
-      scanNFT(),
-      scanPackage(),
-    ]);
-  }
+  final Stream<Widget> stream;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: StreamBuilder(
+        stream: stream,
+        builder: (context, snapshot) {
+          return SelectionArea(
+              child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (snapshot.data != null) snapshot.data!,
+              if (snapshot.connectionState != ConnectionState.done)
+                SizedBox.square(
+                  dimension: 24,
+                  child: CupertinoActivityIndicator(),
+                ),
+            ],
+          ));
+        },
+      ),
+    );
   }
 }
