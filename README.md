@@ -17,3 +17,4 @@ domain-list.
 - [scanCoin](example/lib/scan_coin.dart)
 - [scanNFT](example/lib/scan_nft.dart)
 - [scanPackage](example/lib/scan_package.dart)
+- [scanDomain](example/lib/scan_domain.dart)

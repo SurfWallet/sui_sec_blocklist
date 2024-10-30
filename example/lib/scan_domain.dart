@@ -7,12 +7,11 @@ Stream<Widget> scanDomain() async* {
   const domains = {
     "https://sui.io",
     "sui.io",
-    "https://cetus.zone",
-    "https://app.cetus.zone",
-    "https://aftermath.finance/trade",
-    "https://deepbook.tech",
-    "https://defi-launchpad.com", //block
+    "https://app.cetus.zone/swap",
+    "https://scam-cetus.zone/swap", //block
+    "https://scam.scam-cetus.zone/swap", //block
     "https://500-airdrop.top", //block
+    "https://defi-launchpad.com", //block
   };
   final blocklist = SuiSecBlocklist();
 

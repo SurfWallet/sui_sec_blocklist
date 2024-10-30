@@ -115,8 +115,12 @@ Action scanDomain(List<String> blocklist, String url) {
 
   for (final key in _kDomainMap.keys) {
     if (domain.contains(key)) {
-      // if (domain != _kDomainMap[key]) {
-      if (!domain.endsWith(_kDomainMap[key]!.toLowerCase())) {
+      final whitelistDomain = _kDomainMap[key]!.toLowerCase();
+      if (domainParts.length == whitelistDomain.split(".").length) {
+        //scam-aaa.com
+        return domain != whitelistDomain ? Action.block : Action.none;
+      } else if (!domain.endsWith('.$whitelistDomain')) {
+        //app.scam-aaa.com
         return Action.block;
       }
     }

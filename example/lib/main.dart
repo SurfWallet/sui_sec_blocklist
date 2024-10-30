@@ -44,23 +44,24 @@ class _ScanResultWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
-      child: StreamBuilder(
-        stream: stream,
-        builder: (context, snapshot) {
-          return SelectionArea(
-              child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (snapshot.data != null) snapshot.data!,
-              if (snapshot.connectionState != ConnectionState.done)
-                SizedBox.square(
-                  dimension: 24,
-                  child: CupertinoActivityIndicator(),
-                ),
-            ],
-          ));
-        },
+      child: SelectionArea(
+        child: StreamBuilder(
+          stream: stream,
+          builder: (context, snapshot) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (snapshot.data != null) snapshot.data!,
+                if (snapshot.connectionState != ConnectionState.done)
+                  const SizedBox.square(
+                    dimension: 24,
+                    child: CupertinoActivityIndicator(),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
