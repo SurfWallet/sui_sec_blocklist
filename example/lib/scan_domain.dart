@@ -6,12 +6,14 @@ import 'package:url_launcher/url_launcher_string.dart';
 Stream<Widget> scanDomain() async* {
   const domains = {
     "https://sui.io",
-    "sui.io",
+    "deepbook.tech",
     "https://app.cetus.zone/swap",
+    "https://a1.b2.deepbook.cetus.zone",
+    "https://deepbook.cetus.zone/v2",
     "https://scam-cetus.zone/swap", //block
     "https://scam.scam-cetus.zone/swap", //block
+    "https://scam1.scam2.scam-cetus.zone/swap", //block
     "https://500-airdrop.top", //block
-    "https://defi-launchpad.com", //block
   };
   final blocklist = SuiSecBlocklist();
 

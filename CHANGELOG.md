@@ -1,3 +1,7 @@
+## 0.1.10
+
+* Fix scan Subdomains.
+
 ## 0.1.9
 
 * Fix Scan Domain.

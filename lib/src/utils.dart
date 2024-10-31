@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -51,7 +52,7 @@ const _kDomainMap = {
 };
 
 Future<AllowBlocklist?> _fetchAnyAllowBlocklist(
-  Iterable urls, {
+  Iterable<String> urls, {
   ErrorCallback? reportError,
 }) async {
   for (final url in urls) {
@@ -100,16 +101,26 @@ Future<DomainBlocklist?> fetchDomainBlocklist({
 
 /// Scan the [url] in [blocklist].
 Action scanDomain(List<String> blocklist, String url) {
-  url = url.startsWith(RegExp('http', caseSensitive: false))
-      ? url
-      : 'https://$url';
-  final domain = Uri.tryParse(url)?.host.toLowerCase() ?? '';
+  final domain = url.startsWith(RegExp('http', caseSensitive: false))
+      ? Uri.tryParse(url)?.host.toLowerCase() ?? url.toLowerCase()
+      : url.toLowerCase();
   final domainParts = domain.split(".");
 
   for (var i = 0; i < domainParts.length - 1; i++) {
     final domainToLookup = domainParts.sublist(i).join(".");
     if (blocklist.contains(domainToLookup)) {
       return Action.block;
+    }
+  }
+
+  for (var whitelistDomain in _kDomainMap.values) {
+    whitelistDomain = whitelistDomain.toLowerCase();
+    final whitelistDomainParts = whitelistDomain.split(".");
+    final slice = domainParts
+        .sublist(max(0, domainParts.length - whitelistDomainParts.length));
+    //https://deepbook.cetus.zone is NOT-BLOCK
+    if (slice.join('.') == whitelistDomain) {
+      return Action.none;
     }
   }
 
