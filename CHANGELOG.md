@@ -1,3 +1,7 @@
+## 0.1.11
+
+* Fix scan domain endsWith "/".
+
 ## 0.1.10
 
 * Fix scan Subdomains.

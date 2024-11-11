@@ -140,6 +140,7 @@ class SuiSecBlocklist {
     BlocklistStorageKey key, {
     bool autoFetch = true,
   }) async {
+    value = value.trim();
     logger("scan($key) start");
     var storedBlocklist = await _storage.getItem(key);
 

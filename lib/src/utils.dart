@@ -101,9 +101,11 @@ Future<DomainBlocklist?> fetchDomainBlocklist({
 
 /// Scan the [url] in [blocklist].
 Action scanDomain(List<String> blocklist, String url) {
+  url = url.trim();
   final domain = url.startsWith(RegExp('http', caseSensitive: false))
-      ? Uri.tryParse(url)?.host.toLowerCase() ?? url.toLowerCase()
-      : url.toLowerCase();
+      ? Uri.tryParse(url)?.host.toLowerCase() ??
+          Uri.parse('https://$url').host.toLowerCase()
+      : Uri.parse('https://$url').host.toLowerCase();
   final domainParts = domain.split(".");
 
   for (var i = 0; i < domainParts.length - 1; i++) {
