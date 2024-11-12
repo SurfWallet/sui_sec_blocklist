@@ -10,11 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      - uses: dart-lang/setup-dart@v1
-
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
       #- name: Install dependencies
       #  run: dart pub get
       ## Your project will need to have tests in test/ and a dependency on
@@ -26,9 +23,26 @@ jobs:
         run: dart format .
   publish:
     needs: build
+    runs-on: ubuntu-latest
     permissions:
       id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    #uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          #flutter-version: '3.24.4'
+          channel: 'stable'
+      - name: Install dependencies
+        run: dart pub get
+      - name: Format project source
+        run: dart format .
+      #Setup Dart SDK with JWT token
+      #- uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672
+      - name: Publish Flutter Package
+        run: dart pub publish -f
     # with:
     #   working-directory: path/to/package/within/repository
   release:
@@ -49,5 +63,5 @@ jobs:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           release_name: Release ${{ github.ref }}
           body: Please refer to [CHANGELOG.md](https://github.com/SurfWallet/sui_sec_blocklist/blob/master/CHANGELOG.md) for details.
-          draft: false
+          draft: true
           prerelease: false
