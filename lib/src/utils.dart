@@ -174,12 +174,7 @@ Future<ObjectBlocklist?> fetchObjectBlocklist({
 
 /// Scan the [object] in [objectList].
 Action scanObject(List<String> objectList, String object) {
-  return objectList.any((e) {
-    return e.contains(RegExp(object, caseSensitive: false)) ||
-        object.contains(RegExp(e, caseSensitive: false));
-  })
-      ? Action.block
-      : Action.none;
+  return objectList.contains(object) ? Action.block : Action.none;
 }
 
 /// Fetch coin whitelist and blacklist.

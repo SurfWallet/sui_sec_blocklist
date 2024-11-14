@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
@@ -31,25 +32,31 @@ Stream<Widget> scanDomain() async* {
     ),
   ];
   yield Text.rich(TextSpan(children: spans));
-  for (final d in domains) {
-    final action = await blocklist.scanDomain(d);
+  for (final list in domains.slices(5)) {
+    final actionList = await blocklist.scanDomain(list);
     spans = [
       ...spans,
-      TextSpan(
-        text: "${action == Action.block ? '' : 'NOT-'}BLOCK domain ",
-        children: [
-          TextSpan(
-            text: d,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => launchUrlString(
-                  d.startsWith(RegExp('http')) ? d : 'https://$d'),
-            style: TextStyle(decoration: TextDecoration.underline),
-          ),
-          TextSpan(text: '\n' * 2),
-        ],
-        style: TextStyle(
-            color: action == Action.block ? Colors.red : Colors.green),
-      ),
+      ...List.generate(actionList.length, (index) {
+        final action = actionList[index];
+        final domain = list[index];
+        return TextSpan(
+          text: "${action == Action.block ? '' : 'NOT-'}BLOCK domain ",
+          children: [
+            TextSpan(
+              text: domain,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrlString(
+                    domain.startsWith(RegExp('http'))
+                        ? domain
+                        : 'https://$domain'),
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
+            TextSpan(text: '\n' * 2),
+          ],
+          style: TextStyle(
+              color: action == Action.block ? Colors.red : Colors.green),
+        );
+      })
     ];
     yield Text.rich(TextSpan(children: spans));
   }

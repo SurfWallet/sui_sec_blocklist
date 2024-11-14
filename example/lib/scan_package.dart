@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
@@ -22,24 +23,28 @@ Stream<Widget> scanPackage() async* {
   yield Text.rich(TextSpan(children: [...spans]));
   final blocklist = SuiSecBlocklist();
 
-  for (final p in packages) {
-    final action = await blocklist.scanPackage(p);
+  for (final list in packages.slices(5)) {
+    final actions = await blocklist.scanPackage(list);
     spans = [
       ...spans,
-      TextSpan(
-        text: "${action == Action.block ? '' : 'NOT-'}BLOCK package ",
-        children: [
-          TextSpan(
-            text: p,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => launchUrlString(suiScan.getObjectIdUrl(p)),
-            style: TextStyle(decoration: TextDecoration.underline),
-          ),
-          TextSpan(text: '\n' * 2),
-        ],
-        style: TextStyle(
-            color: action == Action.block ? Colors.red : Colors.green),
-      ),
+      ...List.generate(actions.length, (index) {
+        final action = actions[index];
+        final p = list[index];
+        return TextSpan(
+          text: "${action == Action.block ? '' : 'NOT-'}BLOCK package ",
+          children: [
+            TextSpan(
+              text: p,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrlString(suiScan.getObjectIdUrl(p)),
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
+            TextSpan(text: '\n' * 2),
+          ],
+          style: TextStyle(
+              color: action == Action.block ? Colors.red : Colors.green),
+        );
+      }),
     ];
     yield Text.rich(TextSpan(children: spans));
   }

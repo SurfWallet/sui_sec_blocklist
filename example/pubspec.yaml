@@ -13,6 +13,7 @@ dependencies:
   sui_sec_blocklist:
     path: ..
   url_launcher: ^6.3.1
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:

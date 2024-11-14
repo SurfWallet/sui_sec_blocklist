@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
@@ -13,7 +14,6 @@ Stream<Widget> scanCoin() async* {
   const client = SuiClient(network: network);
   final suiScan = SuiScan(network: network);
   final blocklist = SuiSecBlocklist();
-
   var spans = <TextSpan>[
     TextSpan(
       text: 'scanCoin:\n',
@@ -33,25 +33,33 @@ Stream<Widget> scanCoin() async* {
   yield Text.rich(TextSpan(children: spans));
 
   final ownBalances = await client.getAllBalances(address);
-
-  for (final coinBalance in ownBalances) {
-    final coinType = coinBalance.coinType;
-    final action = await blocklist.scanCoin(coinType);
+  for (final list in ownBalances.slices(5)) {
+    //support multiple scan
+    final coinTypes = list.map((e) => e.coinType).toList(growable: false);
+    final results = await blocklist.scanCoin(coinTypes);
     spans = [
       ...spans,
-      TextSpan(
-        text: "${action == Action.block ? '' : 'NOT-'}BLOCK Coin ",
-        children: [
-          TextSpan(
-            text: coinType,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => launchUrlString(suiScan.getObjectIdUrl(coinType)),
-            style: TextStyle(decoration: TextDecoration.underline),
-          ),
-          TextSpan(text: '\n' * 2),
-        ],
-        style: TextStyle(
-            color: action == Action.block ? Colors.red : Colors.green),
+      ...List.generate(
+        results.length,
+        (index) {
+          final action = results[index];
+          final coinType = coinTypes[index];
+          return TextSpan(
+            text: "${action == Action.block ? '' : 'NOT-'}BLOCK Coin ",
+            children: [
+              TextSpan(
+                text: coinType,
+                recognizer: TapGestureRecognizer()
+                  ..onTap =
+                      () => launchUrlString(suiScan.getObjectIdUrl(coinType)),
+                style: TextStyle(decoration: TextDecoration.underline),
+              ),
+              TextSpan(text: '\n' * 2),
+            ],
+            style: TextStyle(
+                color: action == Action.block ? Colors.red : Colors.green),
+          );
+        },
       )
     ];
 

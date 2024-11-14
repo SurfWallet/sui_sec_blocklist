@@ -1,3 +1,7 @@
+## 0.2.0
+
+* Break change: Optimize scan.
+
 ## 0.1.11
 
 * Fix scan domain endsWith "/".

@@ -37,11 +37,11 @@ class SuiSecBlocklist {
     return _fetchAllowBlocklist(BlocklistStorageKey.domainBlocklist);
   }
 
-  /// scan domain, if return [Action.block], the [url] is in blocklist.
-  /// * [url] scan the domain.
-  Future<Action> scanDomain(String url, {bool autoFetch = true}) {
+  /// scan domain, if return [Action.block], the [urls] is in blocklist.
+  /// * [urls] scan the domain.
+  Future<List<Action>> scanDomain(List<String> urls, {bool autoFetch = true}) {
     return _scan(
-      url,
+      urls,
       BlocklistStorageKey.domainBlocklist,
       autoFetch: autoFetch,
     );
@@ -52,11 +52,12 @@ class SuiSecBlocklist {
     return _fetchAllowBlocklist(BlocklistStorageKey.packageBlocklist);
   }
 
-  /// scan package address, if return [Action.block], the package [address] is in blocklist.
-  /// * [address] the package address.
-  Future<Action> scanPackage(String address, {bool autoFetch = true}) {
+  /// scan package address, if return [Action.block], the package [addresses] is in blocklist.
+  /// * [addresses] the package addresses.
+  Future<List<Action>> scanPackage(List<String> addresses,
+      {bool autoFetch = true}) {
     return _scan(
-      address,
+      addresses,
       BlocklistStorageKey.packageBlocklist,
       autoFetch: autoFetch,
     );
@@ -67,11 +68,12 @@ class SuiSecBlocklist {
     return _fetchAllowBlocklist(BlocklistStorageKey.objectBlocklist);
   }
 
-  /// scan object type, if return [Action.block], the [object] is in blocklist.
-  /// * [object] the object type.
-  Future<Action> scanObject(String object, {bool autoFetch = true}) {
+  /// scan object type, if return [Action.block], the [objectTypes] is in blocklist.
+  /// * [objectTypes] the object type.
+  Future<List<Action>> scanObject(List<String> objectTypes,
+      {bool autoFetch = true}) {
     return _scan(
-      object,
+      objectTypes,
       BlocklistStorageKey.objectBlocklist,
       autoFetch: autoFetch,
     );
@@ -82,11 +84,12 @@ class SuiSecBlocklist {
     return _fetchAllowBlocklist(BlocklistStorageKey.coinBlocklist);
   }
 
-  /// scan coin type, if return [Action.block], the [coinType] is in blocklist.
-  /// * [coinType] the coin type
-  Future<Action> scanCoin(String coinType, {bool autoFetch = true}) {
+  /// scan coin type, if return [Action.block], the [coinTypes] is in blocklist.
+  /// * [coinTypes] the coin type
+  Future<List<Action>> scanCoin(List<String> coinTypes,
+      {bool autoFetch = true}) {
     return _scan(
-      coinType,
+      coinTypes,
       BlocklistStorageKey.coinBlocklist,
       autoFetch: autoFetch,
     );
@@ -135,16 +138,16 @@ class SuiSecBlocklist {
     logger("allowDomainLocally success");
   }
 
-  Future<Action> _scan(
-    String value,
+  Future<List<Action>> _scan(
+    List<String> values,
     BlocklistStorageKey key, {
     bool autoFetch = true,
   }) async {
-    value = value.trim();
+    if (values.isEmpty) return List.empty();
     logger("scan($key) start");
     var storedBlocklist = await _storage.getItem(key);
 
-    logger("scan($key) fetch 1 $storedBlocklist");
+    logger("scan($key) fetch local storage $storedBlocklist");
 
     if (storedBlocklist == null && autoFetch) {
       final _ = switch (key) {
@@ -160,52 +163,69 @@ class SuiSecBlocklist {
       };
 
       storedBlocklist = await _storage.getItem(key);
-      logger("scan($key) fetch 2 $storedBlocklist");
+      logger("scan($key) fetch $storedBlocklist");
     }
 
     if (storedBlocklist == null) {
       logger("scan($key) error $storedBlocklist");
       _reportError?.call(Exception("Failed to fetch blocklist"));
+      final results =
+          List.generate(values.length, (i) => Action.none, growable: false);
       if (!autoFetch && key == BlocklistStorageKey.domainBlocklist) {
         final userLocally = await getUserAllowDomainLocally();
-        final blocklist = userLocally?.blocklist ?? [];
-        final hostname = Uri.tryParse(value)?.host;
-        if (blocklist.contains(hostname)) {
-          return Action.block;
+        final blocklist = userLocally?.blocklist ?? <String>{};
+        for (var i = 0; i < values.length; i++) {
+          final value = values[i].trim();
+          final hostname = Uri.tryParse(value)?.host;
+          if (blocklist.contains(hostname)) {
+            results[i] = Action.block;
+          }
         }
       }
-
-      return Action.none;
+      return results;
     }
-
     //Because blocklist data is too much. Fix Flutter Jank UI.
     final blocklist = storedBlocklist.blocklist;
-    final action = await Isolate.run(() {
-      return switch (key) {
-        BlocklistStorageKey.domainBlocklist =>
-          utils.scanDomain(blocklist, value),
-        BlocklistStorageKey.coinBlocklist => utils.scanCoin(blocklist, value),
-        BlocklistStorageKey.packageBlocklist =>
-          utils.scanPackage(blocklist, value),
-        BlocklistStorageKey.objectBlocklist =>
-          utils.scanObject(blocklist, value),
-        BlocklistStorageKey.userAllowlist => Action.none,
-      };
-    });
 
-    if (action == Action.block && key == BlocklistStorageKey.domainBlocklist) {
-      logger("scan($key) BLOCK");
-      final userLocally = await getUserAllowDomainLocally();
-      final allowlist = userLocally?.allowlist ?? [];
-      final hostname = Uri.tryParse(value)?.host;
-      if (allowlist.contains(hostname)) {
-        logger("scan($key) allowlist $allowlist $hostname");
-        return Action.none;
+    final results = key == BlocklistStorageKey.userAllowlist
+        ? List.generate(values.length, (i) => Action.none, growable: false)
+        : await Isolate.run(() {
+            return List.generate(values.length, (index) {
+              final value = values[index].trim();
+              final action = switch (key) {
+                BlocklistStorageKey.domainBlocklist =>
+                  utils.scanDomain(blocklist, value),
+                BlocklistStorageKey.coinBlocklist =>
+                  utils.scanCoin(blocklist, value),
+                BlocklistStorageKey.packageBlocklist =>
+                  utils.scanPackage(blocklist, value),
+                BlocklistStorageKey.objectBlocklist =>
+                  utils.scanObject(blocklist, value),
+                BlocklistStorageKey.userAllowlist => Action.none,
+              };
+              return action;
+            });
+          });
+
+    //scan from UserAllowDomainLocally
+    if (key == BlocklistStorageKey.domainBlocklist) {
+      for (var i = 0; i < results.length; i++) {
+        final action = results[i];
+        if (action == Action.block) {
+          final value = values[i];
+          logger("scan($key) BLOCK");
+          final userLocally = await getUserAllowDomainLocally();
+          final allowlist = userLocally?.allowlist ?? [];
+          final hostname = Uri.tryParse(value)?.host;
+          if (allowlist.contains(hostname)) {
+            logger("scan($key) allowlist $allowlist $hostname");
+            results[i] = Action.none;
+          }
+        }
+        logger("scan($key) action $action");
       }
     }
 
-    logger("scan($key) action $action");
-
-    return action;
+    return results;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:sui_sec_blocklist/sui_sec_blocklist.dart';
@@ -22,35 +23,41 @@ Stream<Widget> scanNFT() async* {
 
   yield Text.rich(TextSpan(children: spans));
   final blocklist = SuiSecBlocklist();
+  for (var objList in ownObjects.slices(5)) {
+    objList = objList.where((o) => o.objectType != null).toList();
+    final objectTypes = objList.map((e) => e.objectType!).toList();
+    final actions = await blocklist.scanObject(objectTypes);
 
-  for (final obj in ownObjects) {
-    final objectId = obj.objectId;
-    final objectType = obj.objectType;
-    final action = await blocklist.scanObject(objectType ?? '');
     spans = [
       ...spans,
-      TextSpan(
-        text: "${action == Action.block ? '' : 'NOT-'}BLOCK NFT ",
-        children: [
-          if (objectType?.isNotEmpty ?? false)
+      ...List.generate(actions.length, (index) {
+        final action = actions[index];
+        final objectId = objList[index].objectId;
+        final objectType = objList[index].objectType;
+        return TextSpan(
+          text: "${action == Action.block ? '' : 'NOT-'}BLOCK NFT ",
+          children: [
+            if (objectType?.isNotEmpty ?? false)
+              TextSpan(
+                text: 'objectType=$objectType',
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () =>
+                      launchUrlString(suiScan.getObjectIdUrl(objectType ?? '')),
+                style: TextStyle(decoration: TextDecoration.underline),
+              ),
             TextSpan(
-              text: 'objectType=$objectType',
+              text: 'objectId=$objectId',
               recognizer: TapGestureRecognizer()
-                ..onTap = () =>
-                    launchUrlString(suiScan.getObjectIdUrl(objectType ?? '')),
+                ..onTap =
+                    () => launchUrlString(suiScan.getObjectIdUrl(objectId)),
               style: TextStyle(decoration: TextDecoration.underline),
             ),
-          TextSpan(
-            text: 'objectId=$objectId',
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => launchUrlString(suiScan.getObjectIdUrl(objectId)),
-            style: TextStyle(decoration: TextDecoration.underline),
-          ),
-          TextSpan(text: '\n' * 2),
-        ],
-        style: TextStyle(
-            color: action == Action.block ? Colors.red : Colors.green),
-      ),
+            TextSpan(text: '\n' * 2),
+          ],
+          style: TextStyle(
+              color: action == Action.block ? Colors.red : Colors.green),
+        );
+      }),
     ];
     yield Text.rich(TextSpan(children: spans));
   }
