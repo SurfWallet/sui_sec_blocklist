@@ -13,6 +13,8 @@ Stream<Widget> scanDomain() async* {
     "https://app.cetus.zone/swap",
     "https://a1.b2.deepbook.cetus.zone",
     "https://deepbook.cetus.zone/v2",
+    "https://www.volo.fi",
+    "https://volosui.com",
     "https://scam-cetus.zone/swap", //block
     "https://scam.scam-cetus.zone/swap", //block
     "https://scam1.scam2.scam-cetus.zone/swap", //block

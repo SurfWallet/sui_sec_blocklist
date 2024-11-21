@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Fix scan domain
+
 ## 0.2.0
 
 * Break change: Optimize scan.

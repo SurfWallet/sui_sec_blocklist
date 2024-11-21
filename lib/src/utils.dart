@@ -47,6 +47,7 @@ const _kDomainMap = {
   "bluefin": "bluefin.io",
   "haedal": "haedal.xyz",
   "volo": "volosui.com",
+  "volo.fi": "volo.fi", //will redirected to volosui.com
   "alphafi": "alphafi.xyz",
   "deepbook": "deepbook.tech",
 };
