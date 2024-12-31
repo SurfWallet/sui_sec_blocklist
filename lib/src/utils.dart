@@ -11,25 +11,25 @@ import 'types.dart';
 /// default domain blocklist json url
 const _kDefaultBlocklistUrl = [
   "https://guardians.suiet.app/domain-list.json",
-  "https://raw.githubusercontent.com/suiet/guardians/main/src/domain-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/dist/domain-list.json",
 ];
 
 /// default coinType blocklist json url
 const _kDefaultCoinUrl = [
   "https://guardians.suiet.app/coin-list.json",
-  "https://raw.githubusercontent.com/suiet/guardians/main/src/coin-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/dist/coin-list.json",
 ];
 
 /// default package blocklist json url
 const _kDefaultPackageUrl = [
   "https://guardians.suiet.app/package-list.json",
-  "https://raw.githubusercontent.com/suiet/guardians/main/src/package-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/dist/package-list.json",
 ];
 
 /// default object type blocklist json url
 const _kDefaultObjectUrl = [
   "https://guardians.suiet.app/object-list.json",
-  "https://raw.githubusercontent.com/suiet/guardians/main/src/object-list.json",
+  "https://raw.githubusercontent.com/suiet/guardians/main/dist/object-list.json",
 ];
 
 const _kDomainMap = {

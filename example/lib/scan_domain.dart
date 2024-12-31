@@ -17,6 +17,7 @@ Stream<Widget> scanDomain() async* {
     "https://www.volo.fi",
     "https://volosui.com",
     "https://navi.ag",
+    "https://navipro.live",
     "https://scam-cetus.zone/swap", //block
     "https://scam.scam-cetus.zone/swap", //block
     "https://scam1.scam2.scam-cetus.zone/swap", //block

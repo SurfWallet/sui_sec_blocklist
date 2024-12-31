@@ -33,7 +33,7 @@ class SuiSecBlocklist {
   }
 
   /// fetch domain whitelist and blacklist.
-  Future<void> fetchDomainList() {
+  Future<DomainBlocklist?> fetchDomainList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.domainBlocklist);
   }
 
@@ -48,7 +48,7 @@ class SuiSecBlocklist {
   }
 
   /// fetch package whitelist and blacklist.
-  Future<void> fetchPackageList() {
+  Future<DomainBlocklist?> fetchPackageList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.packageBlocklist);
   }
 
@@ -64,7 +64,7 @@ class SuiSecBlocklist {
   }
 
   /// fetch object whitelist and blacklist.
-  Future<void> fetchObjectList() {
+  Future<DomainBlocklist?> fetchObjectList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.objectBlocklist);
   }
 
@@ -80,7 +80,7 @@ class SuiSecBlocklist {
   }
 
   /// fetch coinType whitelist and blacklist.
-  Future<void> fetchCoinList() {
+  Future<DomainBlocklist?> fetchCoinList() {
     return _fetchAllowBlocklist(BlocklistStorageKey.coinBlocklist);
   }
 
@@ -95,7 +95,7 @@ class SuiSecBlocklist {
     );
   }
 
-  Future<void> _fetchAllowBlocklist(BlocklistStorageKey key) async {
+  Future<DomainBlocklist?> _fetchAllowBlocklist(BlocklistStorageKey key) async {
     logger("_fetchAllowBlocklist($key) start");
     final blocklist = switch (key) {
       BlocklistStorageKey.domainBlocklist => await utils.fetchDomainBlocklist(),
@@ -111,10 +111,11 @@ class SuiSecBlocklist {
     if (blocklist == null) {
       logger("_fetchAllowBlocklist($key) fail 1 $blocklist");
       _reportError?.call(Exception("Failed to fetch blocklist"));
-      return;
+      return null;
     }
     await _storage.setItem(key, blocklist);
     logger("_fetchAllowBlocklist($key) success $blocklist");
+    return blocklist;
   }
 
   /// Get user locally custom whitelist and blacklist.
@@ -138,6 +139,8 @@ class SuiSecBlocklist {
     logger("allowDomainLocally success");
   }
 
+  static final _fetchedKeys = <BlocklistStorageKey>{};
+
   Future<List<Action>> _scan(
     List<String> values,
     BlocklistStorageKey key, {
@@ -149,8 +152,8 @@ class SuiSecBlocklist {
 
     logger("scan($key) fetch local storage $storedBlocklist");
 
-    if (storedBlocklist == null && autoFetch) {
-      final _ = switch (key) {
+    if ((storedBlocklist == null || !_fetchedKeys.contains(key)) && autoFetch) {
+      final list = switch (key) {
         BlocklistStorageKey.domainBlocklist =>
           await withRetry(() => fetchDomainList(), 3),
         BlocklistStorageKey.coinBlocklist =>
@@ -161,6 +164,10 @@ class SuiSecBlocklist {
           await withRetry(() => fetchObjectList(), 3),
         BlocklistStorageKey.userAllowlist => null,
       };
+
+      if (list != null) {
+        _fetchedKeys.add(key);
+      }
 
       storedBlocklist = await _storage.getItem(key);
       logger("scan($key) fetch $storedBlocklist");
