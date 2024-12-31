@@ -1,3 +1,7 @@
+## 0.2.2
+
+* Optimize scan domain.
+
 ## 0.2.1
 
 * Fix scan domain

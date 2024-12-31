@@ -37,6 +37,7 @@ const _kDomainMap = {
   "scallop": "scallop.io",
   "navi": "naviprotocol.io",
   "navx": "naviprotocol.io",
+  "navi.ag": "navi.ag",
   "suilend": "suilend.fi",
   "bucket": "bucketprotocol.io",
   "turbos": "turbos.finance",
@@ -50,6 +51,9 @@ const _kDomainMap = {
   "volo.fi": "volo.fi", //will redirected to volosui.com
   "alphafi": "alphafi.xyz",
   "deepbook": "deepbook.tech",
+  "suins": "suins.io",
+  "suilink": "suilink.io",
+  "sui": "sui.io",
 };
 
 Future<AllowBlocklist?> _fetchAnyAllowBlocklist(
@@ -100,8 +104,8 @@ Future<DomainBlocklist?> fetchDomainBlocklist({
       reportError: reportError);
 }
 
-/// Scan the [url] in [blocklist].
-Action scanDomain(List<String> blocklist, String url) {
+/// Scan the [url] in [list].
+Action scanDomain(AllowBlocklist list, String url) {
   url = url.trim();
   final domain = url.startsWith(RegExp('http', caseSensitive: false))
       ? Uri.tryParse(url)?.host.toLowerCase() ??
@@ -111,7 +115,10 @@ Action scanDomain(List<String> blocklist, String url) {
 
   for (var i = 0; i < domainParts.length - 1; i++) {
     final domainToLookup = domainParts.sublist(i).join(".");
-    if (blocklist.contains(domainToLookup)) {
+    if (list.allowlist.contains(domainToLookup)) {
+      return Action.none;
+    }
+    if (list.blocklist.contains(domainToLookup)) {
       return Action.block;
     }
   }

@@ -184,9 +184,6 @@ class SuiSecBlocklist {
       }
       return results;
     }
-    //Because blocklist data is too much. Fix Flutter Jank UI.
-    final blocklist = storedBlocklist.blocklist;
-
     final results = key == BlocklistStorageKey.userAllowlist
         ? List.generate(values.length, (i) => Action.none, growable: false)
         : await Isolate.run(() {
@@ -194,13 +191,13 @@ class SuiSecBlocklist {
               final value = values[index].trim();
               final action = switch (key) {
                 BlocklistStorageKey.domainBlocklist =>
-                  utils.scanDomain(blocklist, value),
+                  utils.scanDomain(storedBlocklist!, value),
                 BlocklistStorageKey.coinBlocklist =>
-                  utils.scanCoin(blocklist, value),
+                  utils.scanCoin(storedBlocklist!.blocklist, value),
                 BlocklistStorageKey.packageBlocklist =>
-                  utils.scanPackage(blocklist, value),
+                  utils.scanPackage(storedBlocklist!.blocklist, value),
                 BlocklistStorageKey.objectBlocklist =>
-                  utils.scanObject(blocklist, value),
+                  utils.scanObject(storedBlocklist!.blocklist, value),
                 BlocklistStorageKey.userAllowlist => Action.none,
               };
               return action;

@@ -8,6 +8,7 @@ Stream<Widget> scanDomain() async* {
   const domains = {
     "https://sui.io",
     "https://sui.io/",
+    "https://suins.io",
     "deepbook.tech",
     "deepbook.tech/",
     "https://app.cetus.zone/swap",
@@ -15,6 +16,7 @@ Stream<Widget> scanDomain() async* {
     "https://deepbook.cetus.zone/v2",
     "https://www.volo.fi",
     "https://volosui.com",
+    "https://navi.ag",
     "https://scam-cetus.zone/swap", //block
     "https://scam.scam-cetus.zone/swap", //block
     "https://scam1.scam2.scam-cetus.zone/swap", //block
